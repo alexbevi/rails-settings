@@ -1,10 +1,14 @@
 require 'settings'
 
 ActiveRecord::Base.class_eval do
-  def self.has_settings
+  def self.has_settings options = {}
     class_eval do
+      @@options = options
+      
       def settings
-        ScopedSettings.for_target(self)
+        s = ScopedSettings.for_target(self)
+        s.defaults = @@options[:defaults] if @@options.has_key?(:defaults)
+        s
       end
       
       after_destroy { |user| user.settings.target_scoped.delete_all }
