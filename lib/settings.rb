@@ -9,6 +9,10 @@ class Settings < ActiveRecord::Base
     @@defaults = SettingsDefaults::DEFAULTS.with_indifferent_access
   end
   
+  def defaults=(hash)
+    @@defaults = hash.with_indifferent_access
+  end
+  
   #get or set a variable with the variable as the called method
   def self.method_missing(method, *args)
     method_name = method.to_s
@@ -48,7 +52,7 @@ class Settings < ActiveRecord::Base
     vars.each do |record|
       result[record.var] = record.value
     end
-    result.with_indifferent_access
+    @@defaults.select { |k,_| k =~ /^#{starting_with}/ }.merge(result).with_indifferent_access
   end
   
   #get a setting value by [] notation
